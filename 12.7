@@ -1,0 +1,380 @@
+#include <iostream>
+#include <Windows.h>
+#include <time.h>
+
+using namespace std;
+typedef int Info;
+
+struct Elem
+{
+    Elem* link;
+
+    Info info;
+};
+
+void insert(Elem*& L, Info value);
+void print(Elem* L);
+void t_m_union(Elem* first, Elem* second, Elem*& mult_union);
+bool check(Elem* first, Info value);
+void create_change(Elem* first, Elem* second, Elem*& change);
+bool check_change(Elem* second, Info value);
+bool check_two(Elem* L, Info value);
+void create_cross(Elem* first, Elem* second, Elem*& cross);
+bool check_cross(Elem* second, Info value);
+
+int main()
+{
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    Elem* first = NULL;
+    Elem* second = NULL; // оголошення 2 списків
+    Elem* mult_union = NULL; // теоретико - множинне об'єднання
+    Elem* change = NULL; // різниця першого від другого списку
+    Elem* cross = NULL; // перетин двох списків
+    Info value;
+    for (Info i = 1; i <= 10; i++) {
+        if (i <= 5) {
+            cout << "Введіть цифру № " << i << " для списку № 1: "; cin >> value;
+            cout << endl;
+            insert(first, value);
+        }
+        else {
+            cout << "Введіть цифру № " << i << " для списку № 2: "; cin >> value;
+            cout << endl;
+            insert(second, value);
+        }
+    }
+    cout << endl << endl;
+    cout << "Перший список: ";
+    print(first);
+    cout << endl << endl;
+    cout << "Другий список: ";
+    print(second);
+    cout << endl << endl;
+    cout << "Теоретико - множинне об’єднання: ";
+    t_m_union(first, second, mult_union);
+    print(mult_union);
+    cout << endl << endl;
+    cout << "Різниця першого від другого списку: ";
+    create_change(first, second, change);
+    print(change);
+    cout << endl << endl;
+    cout << "Перетин двох списків: ";
+    create_cross(first, second, cross);
+    print(cross);
+}
+
+
+
+
+void insert(Elem*& L, Info value) // додавання елементу у списоk
+{
+    Elem* tmp = new Elem; // створення допоміжного елемента 
+    tmp->info = value;
+    if (L != NULL) // Якщо список не порожній
+    {
+        Elem* T = L; // ще один допомоміжий елемент
+        while (T->link != L) // сканування до останнього елементу 
+            T = T->link; // перехід далі
+        T->link = tmp;
+    }
+    else // Якщо список порожній
+    {
+        L = tmp;
+    }
+    tmp->link = L;
+}
+
+void print(Elem* L) {
+
+    if (L == NULL)
+
+        return;
+
+    Elem* first = L;
+
+    cout << L->info << " ";
+
+    while (L->link != first)
+
+    {
+
+        L = L->link;
+
+        cout << L->info << " ";
+
+    }
+
+    cout << endl;
+
+}
+
+
+
+
+void t_m_union(Elem* first, Elem* second, Elem*& mult_union) {
+    // Копіюваня з першого списку
+
+    Elem* start_f = first;
+
+    Elem* start_s = second;
+
+    Info value = first->info;
+
+    first = first->link;
+
+    while (first != start_f) {
+
+        if (check_two(mult_union, value)) {
+
+            insert(mult_union, value);
+
+        }
+
+        value = first->info;
+
+        first = first->link;
+
+    }
+
+    if (check_two(mult_union, value)) {
+
+        insert(mult_union, value);
+    }
+    first = start_f;
+    //Копіювання з другого списку
+
+    value = second->info;
+
+    second = second->link;
+
+    while (second != start_s) {
+
+        if (check(first, value)) {
+
+            if (check_two(mult_union, value)) {
+
+                insert(mult_union, value);
+
+            }
+
+        }
+
+        value = second->info;
+
+        second = second->link;
+
+    }
+
+    if (check(first, value)) {
+
+        if (check_two(mult_union, value)) {
+
+            insert(mult_union, value);
+
+        }
+
+    }
+
+    second = start_s;
+
+}
+bool check(Elem* first, Info value) {
+
+    Elem* start = first;
+
+    Info check = first->info;
+
+    first = first->link;
+
+    while (first != start) {
+
+        if (check == value) {
+
+            return false;
+        }
+        check = first->info;
+
+        first = first->link;
+
+    }
+
+    if (check == value) {
+
+        return false;
+
+    }
+
+    return true;
+
+}
+bool check_two(Elem* L, Info value) {
+    if (L == NULL) {
+        return true;
+    }
+    Elem* start = L;
+
+    Info check = L->info;
+
+    L = L->link;
+
+    while (L != start) {
+
+        if (check == value) {
+
+            return false;
+
+        }
+
+        check = L->info;
+
+        L = L->link;
+
+    }
+
+    if (check == value) {
+
+        return false;
+
+    }
+
+    return true;
+
+}
+void create_change(Elem* first, Elem* second, Elem*& change) {
+
+    Elem* start = first;
+
+    Info value = first->info;
+
+    first = first->link;
+
+    while (first != start) {
+
+        if (check_change(second, value)) {
+
+            if (check_two(change, value)) {
+
+                insert(change, value);
+
+            }
+
+        }
+
+        value = first->info;
+
+        first = first->link;
+
+    }
+
+    if (check_change(second, value)) {
+
+        if (check_two(change, value)) {
+
+            insert(change, value);
+
+        }
+
+    }
+
+    first = start;
+
+}
+bool check_change(Elem* second, Info value) {
+
+    Elem* start = second;
+
+    Info check = second->info;
+
+    second = second->link;
+
+    while (second != start) {
+
+        if (check == value) {
+
+            return false;
+
+        }
+
+        check = second->info;
+
+        second = second->link;
+
+    }
+
+    if (check == value) {
+
+        return false;
+
+    }
+
+    return true;
+
+}
+void create_cross(Elem* first, Elem* second, Elem*& cross) {
+
+    Elem* start = first;
+
+    Info value = first->info;
+
+    first = first->link;
+
+    while (first != start) {
+
+        if (check_cross(second, value)) {
+
+            if (check_two(cross, value)) {
+
+                insert(cross, value);
+
+            }
+
+        }
+
+        value = first->info;
+
+        first = first->link;
+
+    }
+
+    if (check_cross(second, value)) {
+
+        if (check_two(cross, value)) {
+
+            insert(cross, value);
+
+        }
+
+    }
+
+}
+bool check_cross(Elem* second, Info value) {
+
+    Elem* start = second;
+
+    Info check = second->info;
+
+    second = second->link;
+
+    while (second != start) {
+
+        if (check == value) {
+
+            return true;
+
+        }
+
+        check = second->info;
+
+        second = second->link;
+
+    }
+
+    if (check == value) {
+
+        return true;
+
+    }
+
+    return false;
+}
